@@ -26,7 +26,7 @@ backup:
 
 ### docker启动
 ```shell
-docker run -d -v $(pwd)/data:/app/data -v $(pwd)/config.yaml:/app/config.yaml jidancong/gobackup:v1 -run
+docker run -d -v $(pwd)/data:/app/data -v $(pwd)/config.yaml:/app/config.yaml jidancong/gobackup:v1.0.1 -run
 ```
 
 ## Windows安装
