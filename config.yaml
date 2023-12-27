@@ -1,0 +1,14 @@
+level: "debug"
+store: "/app/data"
+cron: "* * * * *"
+backup:
+- type: mysql
+  host: 192.168.52.146
+  port: 3306
+  user: root
+  password: root
+- type: pg
+  host: 192.168.52.146
+  port: 5432
+  user: root
+  password: root
