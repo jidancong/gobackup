@@ -11,7 +11,6 @@ level: "debug"      # 日志等级
 store: "/app/data"  # 存储
 cron: "* * * * *"   # 定时
 backup:
-backup:
 - type: mysql       # 数据库类型 (pg, mysql)
   host: 192.168.1.1 # 数据库地址
   port: 3306        # 数据库端口
