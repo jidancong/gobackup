@@ -27,10 +27,10 @@ func GetDatabase(t string, h *helper.Helper, commandPath string, config BaseConf
 		return NewMysql(h, config.Host, config.Port, config.Username, config.Password, commandPath, config.Args)
 	case "pg":
 		return NewPostgresql(h, config.Host, config.Port, config.Username, config.Password, commandPath, config.Args), nil
+	case "mongo":
+		return NewMongo(h, config.Host, config.Port, config.Username, config.Password, commandPath, config.Args), nil
 	// case "redis":
 	// 	return NewRedis(config.Command, config.Host, config.Port, config.Username, config.Password, config.Args), nil
-	// case "mongo":
-	// 	return NewMongo(config.Command, config.Host, config.Port, config.Username, config.Password, config.Args), nil
 	// case "scp":
 	// 	return NewScp(config.Host, config.Port, config.Username, config.Password, config.Pwd, config.SrcDir)
 	default:

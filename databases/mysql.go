@@ -32,8 +32,7 @@ func NewMysql(h *helper.Helper, host, port, username, password, commandPath stri
 	os.Setenv("MYSQL_PWD", password)
 	command := "mysqldump"
 	if runtime.GOOS == "windows" {
-		dsn := fmt.Sprintf("%s:%s@tcp(%s:%s)/?charset=utf8mb4&parseTime=True&loc=Local", username, password, host, port)
-		gormdb, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
+		gormdb, err := getMysqlClient(username, password, host, port)
 		if err != nil {
 			return nil, err
 		}
@@ -102,8 +101,7 @@ func (db *Mysql) Backup(database string, excludeTables []string) (string, error)
 }
 
 func (db *Mysql) GetDatabases() ([]string, error) {
-	dsn := fmt.Sprintf("%s:%s@tcp(%s:%s)/?charset=utf8mb4&parseTime=True&loc=Local", db.username, db.password, db.host, db.port)
-	gormdb, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
+	gormdb, err := getMysqlClient(db.username, db.password, db.host, db.port)
 	if err != nil {
 		return nil, err
 	}
@@ -125,8 +123,7 @@ func (db *Mysql) GetDatabases() ([]string, error) {
 }
 
 func (db *Mysql) GetTables(database string) ([]string, error) {
-	dsn := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8mb4&parseTime=True&loc=Local", db.username, db.password, db.host, db.port, database)
-	gormdb, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
+	gormdb, err := getMysqlClient(db.username, db.password, db.host, db.port)
 	if err != nil {
 		return nil, err
 	}
@@ -139,8 +136,7 @@ func (db *Mysql) GetTables(database string) ([]string, error) {
 }
 
 func (db *Mysql) Version() (string, error) {
-	dsn := fmt.Sprintf("%s:%s@tcp(%s:%s)/?charset=utf8mb4&parseTime=True&loc=Local", db.username, db.password, db.host, db.port)
-	gormdb, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
+	gormdb, err := getMysqlClient(db.username, db.password, db.host, db.port)
 	if err != nil {
 		return "", err
 	}
@@ -148,4 +144,14 @@ func (db *Mysql) Version() (string, error) {
 	var version string
 	err = gormdb.Raw("SELECT VERSION()").Scan(&version).Error
 	return version, err
+}
+
+func getMysqlClient(username, password, host, port string) (*gorm.DB, error) {
+	dsn := fmt.Sprintf("%s:%s@tcp(%s:%s)/?charset=utf8mb4&parseTime=True&loc=Local", username, password, host, port)
+	gormdb, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
+	if err != nil {
+		return nil, err
+	}
+
+	return gormdb, nil
 }

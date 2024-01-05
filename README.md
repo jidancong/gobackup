@@ -22,6 +22,11 @@ backup:
   port: 5432
   user: root
   password: root
+- type: mongo
+  host: 192.168.1.1
+  port: 27017
+  user: ""
+  password: ""
 ```
 
 ### docker启动
@@ -47,6 +52,11 @@ backup:
   port: 5432
   user: root
   password: root
+- type: mongo
+  host: 192.168.1.1
+  port: 27017
+  user: ""
+  password: ""
 ```
 ### 启动
 ```shell
@@ -58,6 +68,7 @@ backup:
 ### 支持数据库类型
 mysql
 postgres
+mongo
 
 ### 支持存储
 local

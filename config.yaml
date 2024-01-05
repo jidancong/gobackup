@@ -12,3 +12,8 @@ backup:
   port: 5432
   user: root
   password: root
+- type: mongo
+  host: 192.168.52.146
+  port: 27017
+  user: ""
+  password: ""

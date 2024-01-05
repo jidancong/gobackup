@@ -60,19 +60,20 @@ func Run() {
 		os.Mkdir(cfg.Store, os.ModePerm)
 	}
 
-	// 如果bin文件夹不存在, 进行解压
+	// 每次都对bin目录删
 	toolPath := filepath.Join(cfg.Store, "bin")
-	if _, err := os.Stat(toolPath); os.IsNotExist(err) {
-		if err := upload(); err != nil {
-			fmt.Println("上传压缩包失败 error: ", err)
-			return
-		}
+	if err := os.RemoveAll(toolPath); err != nil {
+		fmt.Println("删bin目录失败 error: ", err)
+		return
+	}
+	if err := upload(); err != nil {
+		fmt.Println("上传压缩包失败 error: ", err)
+		return
+	}
 
-		err := archive.DeCompressor("tools-tmp.rar")
-		if err != nil {
-			fmt.Println("解压失败 error: ", err)
-			return
-		}
+	if err := archive.DeCompressor("tools-tmp.rar"); err != nil {
+		fmt.Println("解压失败 error: ", err)
+		return
 	}
 
 	// 实例控制器
@@ -115,6 +116,11 @@ backup:
   port: 5432
   user: postgres
   password: root
+- type: mongo
+  host: 192.168.52.146
+  port: 27017
+  user: ""
+  password: ""
 `
 	file, err := os.Create(fileName)
 	if err != nil {

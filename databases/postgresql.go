@@ -77,8 +77,7 @@ func (db *Postgresql) BackupAll() (string, error) {
 }
 
 func (db *Postgresql) GetDatabases() ([]string, error) {
-	dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=template1 port=%s sslmode=disable TimeZone=Asia/Shanghai", db.host, db.username, db.password, db.port)
-	gormdb, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
+	gormdb, err := getPostgresClient(db.host, db.username, db.password, db.port, "")
 	if err != nil {
 		return nil, err
 	}
@@ -97,8 +96,7 @@ func (db *Postgresql) GetDatabases() ([]string, error) {
 }
 
 func (db *Postgresql) GetTables(database string) ([]string, error) {
-	dsn := fmt.Sprintf("host=%s user=%s password=%s port=%s dbname=%s sslmode=disable TimeZone=Asia/Shanghai", db.host, db.username, db.password, db.port, database)
-	gormdb, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
+	gormdb, err := getPostgresClient(db.host, db.username, db.password, db.port, database)
 	if err != nil {
 		return nil, err
 	}
@@ -109,4 +107,17 @@ func (db *Postgresql) GetTables(database string) ([]string, error) {
 	}
 
 	return tables, nil
+}
+
+func getPostgresClient(host, username, password, port, database string) (*gorm.DB, error) {
+	dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=template1 port=%s sslmode=disable TimeZone=Asia/Shanghai", host, username, password, port)
+	if len(database) != 0 {
+		dsn = fmt.Sprintf("host=%s user=%s password=%s port=%s dbname=%s sslmode=disable TimeZone=Asia/Shanghai", host, username, password, port, database)
+	}
+	gormdb, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
+	if err != nil {
+		return nil, err
+	}
+
+	return gormdb, nil
 }

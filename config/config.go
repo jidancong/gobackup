@@ -20,8 +20,8 @@ type (
 		Port     string `yaml:"port" validate:"required,number"`
 		Host     string `yaml:"host" validate:"required,ipv4"`
 		DBType   string `yaml:"type" validate:"required"`
-		User     string `yaml:"user" validate:"required"`
-		Password string `yaml:"password" validate:"required"`
+		User     string `yaml:"user"`
+		Password string `yaml:"password"`
 	}
 )
 

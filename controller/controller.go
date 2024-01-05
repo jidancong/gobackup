@@ -45,7 +45,7 @@ func (con *Controller) Start() error {
 		databaseTask = append(databaseTask, task)
 	}
 
-	// 遍历所有任务
+	// 增加定时任务
 	for i := 0; i < len(databaseTask); i++ {
 		task := databaseTask[i]
 		con.c.Add(con.cfg.Cron, func() {
@@ -95,7 +95,7 @@ func (con *Controller) CompressController(ar *helper.Archive, filesName []string
 
 	for _, fileName := range filesName {
 		fileAbs := filepath.Join(con.pwd, fileName)
-		os.Remove(fileAbs)
+		os.RemoveAll(fileAbs)
 	}
 	return nil
 }
