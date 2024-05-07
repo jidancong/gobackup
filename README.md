@@ -28,9 +28,9 @@ backup:
   password: ""
 ```
 
-### docker启动
+### 命令行启动
 ```shell
-docker run -d -v $(pwd)/data:/app/data -v $(pwd)/config.yaml:/app/config.yaml jidancong/gobackup:v1.0.1 -run
+./gobackup
 ```
 
 ## Windows安装
@@ -59,7 +59,8 @@ backup:
 ```
 ### 启动
 ```shell
-./gobackup.exe -run
+./gobackup.exe      # 执行定时任务
+./gobackup.exe -run # 执行一次
 ```
 
 

@@ -1,19 +1,19 @@
 level: "debug"
-store: "/app/data"
+store: "F:\\data"
 cron: "* * * * *"
 backup:
 - type: mysql
-  host: 192.168.52.146
+  host: 192.168.52.147
   port: 3306
   user: root
   password: root
 - type: pg
-  host: 192.168.52.146
+  host: 192.168.52.147
   port: 5432
-  user: root
+  user: postgres
   password: root
 - type: mongo
-  host: 192.168.52.146
+  host: 192.168.52.147
   port: 27017
   user: ""
   password: ""

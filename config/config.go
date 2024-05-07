@@ -25,9 +25,9 @@ type (
 	}
 )
 
-func NewConfig() (GobackupConfig, error) {
+func NewConfig(path string) (GobackupConfig, error) {
 	var cfg GobackupConfig
-	if err := cleanenv.ReadConfig("config.yaml", &cfg); err != nil {
+	if err := cleanenv.ReadConfig(path, &cfg); err != nil {
 		return GobackupConfig{}, fmt.Errorf("读取配置失败 Error: %w", err)
 	}
 	if err := validateStruct(cfg); err != nil {

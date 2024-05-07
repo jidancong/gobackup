@@ -25,3 +25,7 @@ func NewSlog(level string) {
 	h := slog.NewTextHandler(os.Stderr, &slog.HandlerOptions{Level: l})
 	slog.SetDefault(slog.New(h))
 }
+
+func Error(message string, err error) {
+	slog.Error(message, "error", err)
+}
