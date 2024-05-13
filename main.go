@@ -183,11 +183,11 @@ func Run(cfg config.GobackupConfig) {
 		dbPasswd := db.Password
 		tool := dbs.GetTools(dbType, dbUser, dbPasswd, dbHost, dbPort)
 		name, err := tool.Backup(db.FromPath, storePath)
+		zipNames = append(zipNames, name)
 		if err != nil {
 			utils.Error("scp error", err)
 			continue
 		}
-		zipNames = append(zipNames, name)
 	}
 
 	// 压缩

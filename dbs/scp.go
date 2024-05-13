@@ -44,6 +44,8 @@ func (s *Scp) Backup(fromPath, toPath string) (string, error) {
 		return "", err
 	}
 
-	err = c.CopyDirFromRemote(fromPath, localPath, &scp.DirTransferOption{})
+	err = c.CopyDirFromRemote(fromPath, localPath, &scp.DirTransferOption{
+		PreserveProp: true,
+	})
 	return localPath, err
 }
