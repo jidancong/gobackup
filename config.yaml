@@ -17,3 +17,9 @@ backup:
   port: 27017
   user: ""
   password: ""
+- type: scp
+  user: root 
+  password: root
+  host: 192.168.52.147
+  port: 22
+  fromPath: /tmp/scp

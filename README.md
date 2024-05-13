@@ -4,6 +4,8 @@
 ## 入门开始
 
 ## Linux安装
+### 条件
+>  安装 mysqldump/pg_dump/mongodump
 ### 配置说明
 config.yaml
 ```yaml
@@ -26,6 +28,12 @@ backup:
   port: 27017
   user: ""
   password: ""
+- type: scp
+  user: root 
+  password: root
+  host: 192.168.52.147
+  port: 22
+  fromPath: /tmp/scp
 ```
 
 ### 命令行启动
@@ -56,6 +64,12 @@ backup:
   port: 27017
   user: ""
   password: ""
+- type: scp
+  user: root 
+  password: root
+  host: 192.168.52.147
+  port: 22
+  fromPath: /tmp/scp
 ```
 ### 启动
 ```shell
@@ -66,9 +80,10 @@ backup:
 
 ## 说明
 ### 支持数据库类型
-mysql
-postgres
-mongo
+###### mysql
+###### postgres
+###### mongo
+###### scp
 
 ### 支持存储
-local
+###### local

@@ -17,6 +17,9 @@ import (
 //go:embed tools.zip
 var dumpTools []byte
 
+// 压缩包名
+const zipname = "tools.zip"
+
 // 提取压缩包
 func ExtractZip() error {
 	name := "tools.zip"
@@ -24,17 +27,18 @@ func ExtractZip() error {
 	if err != nil {
 		return err
 	}
-
-	_, err = file.Write(dumpTools)
 	defer file.Close()
-	defer os.Remove(name)
+
+	if _, err = file.Write(dumpTools); err != nil {
+		return err
+	}
 	return err
 }
 
 // 解压工具
 func UnzipTool() error {
 	dirname := "bin"
-	zipname := "tools.zip"
+	// zipname := "tools.zip"
 	if fileutil.IsExist(dirname) {
 		return nil
 	}
@@ -76,6 +80,12 @@ backup:
   port: 27017
   user: ""
   password: ""
+- type: scp
+  user: root 
+  password: root
+  host: 192.168.52.147
+  port: 22
+  fromPath: /tmp/scp
 `
 	file, err := os.Create(path)
 	if err != nil {
@@ -99,25 +109,40 @@ func CreateStoreDir(path string) error {
 func Run(cfg config.GobackupConfig) {
 	helper := utils.NewHelper(cfg.Store)
 
+	storePath := cfg.Store
+
+	// 需要压缩的文件名
 	zipNames := make([]string, 0)
+
+	// 数据库配置列表(mysql, mongo, postgres)
+	dbConfigs := make([]config.ConfigDatabase, 0)
 	for _, db := range cfg.ConfigDatabase {
+		if db.DBType == dbs.MONGO || db.DBType == dbs.MYSQL || db.DBType == dbs.POSTGRES {
+			dbConfigs = append(dbConfigs, db)
+		}
+	}
+
+	// 工具配置列表(scp)
+	toolConfigs := make([]config.ConfigDatabase, 0)
+	for _, db := range cfg.ConfigDatabase {
+		if db.DBType == dbs.SCP {
+			toolConfigs = append(toolConfigs, db)
+		}
+	}
+
+	// 数据库备份
+	for _, db := range dbConfigs {
 		dbType := db.DBType
 		dbHost := db.Host
 		dbPort := db.Port
 		dbUser := db.User
 		dbPasswd := db.Password
 
+		// 获取数据库实例
 		client := dbs.GetDatabase(dbType, dbUser, dbPasswd, dbHost, dbPort)
 		backupCommands, err := client.BackupAll()
 		if err != nil {
 			utils.Error("backup error", err)
-			continue
-		}
-
-		// 根据系统, 获取命令行工具
-		command, err := dbs.GetCommand(dbType, dbUser, dbPasswd, dbHost, dbPort)
-		if err != nil {
-			utils.Error("get command error", err)
 			continue
 		}
 
@@ -128,7 +153,13 @@ func Run(cfg config.GobackupConfig) {
 			return
 		}
 
-		command = filepath.Join(pwd, "bin", command)
+		// 根据系统, 获取命令行工具
+		toolDir := filepath.Join(pwd, "bin")
+		command, err := dbs.GetCommand(dbType, toolDir, dbUser, dbPasswd, dbHost, dbPort)
+		if err != nil {
+			utils.Error("get command error", err)
+			continue
+		}
 
 		for _, dumpArgs := range backupCommands {
 			_, err := helper.Exec(command, dumpArgs...)
@@ -138,12 +169,31 @@ func Run(cfg config.GobackupConfig) {
 			}
 
 			// 增加到压缩列表
-			zipName := filepath.Join(cfg.Store, dumpArgs[len(dumpArgs)-1])
-			zipNames = append(zipNames, zipName)
+			name := filepath.Join(storePath, dumpArgs[len(dumpArgs)-1])
+			zipNames = append(zipNames, name)
 		}
 	}
 
+	// scp备份
+	for _, db := range toolConfigs {
+		dbType := db.DBType
+		dbHost := db.Host
+		dbPort := db.Port
+		dbUser := db.User
+		dbPasswd := db.Password
+		tool := dbs.GetTools(dbType, dbUser, dbPasswd, dbHost, dbPort)
+		name, err := tool.Backup(db.FromPath, storePath)
+		if err != nil {
+			utils.Error("scp error", err)
+			continue
+		}
+		zipNames = append(zipNames, name)
+	}
+
 	// 压缩
+	if len(zipNames) == 0 {
+		return
+	}
 	if err := utils.Compressor(zipNames, cfg.Store); err != nil {
 		utils.Error("compress error", err)
 		return
@@ -151,6 +201,9 @@ func Run(cfg config.GobackupConfig) {
 
 	// 删
 	for _, filename := range zipNames {
+		if filename == storePath {
+			panic("无法删存储目录")
+		}
 		if err := os.RemoveAll(filename); err != nil {
 			utils.Error("delete error", err)
 		}
@@ -175,6 +228,11 @@ func main() {
 	cfg, err := config.NewConfig(cfgPath)
 	if err != nil {
 		fmt.Println("读取配置失败", err)
+		return
+	}
+
+	if err := cfg.Validate(); err != nil {
+		fmt.Println("校验配置信息失败", err)
 		return
 	}
 
